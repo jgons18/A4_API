@@ -3,11 +3,10 @@
     "tittle":"Framework",
     "version":"1.0"
   },
-  "dbconf_pro":{
+  "dbconf":{
     "driver":"mysql",
-    "dbhost":"jgonzalez.cesnuria.com",
-    "dbuser":"jgonzalez_todo",
-    "dbpass":"linuxlinux",
-    "dbname":"jgonzalez_todo"
+    "dbhost": "172.17.0.2",
+    "dbname": "A3",
+    "dbuser": "root",
+    "dbpass": "linuxlinux"
   }
-}
