@@ -31,15 +31,18 @@ class Task
         else{
             if($request->parameters==null){
 
-                $sql="SELECT id_task,usuarios_id_user,descripcion,pendiente,fecha FROM todo_tasks";
+                //$sql="SELECT id_task,usuarios_id_user,descripcion,pendiente,fecha FROM todo_tasks";
+                $sql="SELECT id,id_usuario,title,estado,fecha_creado,fecha_act FROM tareas";
                 $stmt=$this->gbd->prepare($sql);
                 $stmt->execute();
                 $rows=$stmt->fetchAll(\PDO::FETCH_ASSOC);
             }else{
-                $sql="SELECT id_task,id_usuario,titulo,estado,fecha_creado,fecha_act FROM tareas WHERE id=:id";
+                //$sql="SELECT id_task,id_usuario,titulo,estado,fecha_creado,fecha_act FROM tareas WHERE id=:id";
+                $sql="SELECT id,id_usuario,title,estado,fecha_creado,fecha_act FROM tareas WHERE id=:id";
                 $stmt=$this->gbd->prepare($sql);
                 $id=$request->parameters;
-                $stmt->bindValue(':id_task',$id,\PDO::PARAM_INT);
+                //$stmt->bindValue(':id_task',$id,\PDO::PARAM_INT);
+                $stmt->bindValue(':id',$id,\PDO::PARAM_INT);
                 $stmt->execute();
                 $rows=$stmt->fetchAll(\PDO::FETCH_ASSOC);
             }
@@ -58,18 +61,27 @@ class Task
         if($_SERVER['REQUEST_METHOD']!='POST'){
             return array('error'=>'Request not valid');
         }else{
-            if(!empty($request->parameters['usuarios_id_user']) && !empty($request->parameters['descripcion']) ){
+            //if(!empty($request->parameters['usuarios_id_user']) && !empty($request->parameters['descripcion']) ){
+            if(!empty($request->parameters['id_usuario']) && !empty($request->parameters['titulo']) &&
+                !empty($request->parameters['descripcion'])){
                 // asigno estado pendiente
                 $estado=0;
                 // asigno la fecha actual
                 $datenow=date('Y-m-d H:i:s');
-                $sql="INSERT INTO todo_tasks (usuarios_id_user, descripcion, pendiente, fecha) ";
-                $sql.="VALUES (:usuarios_id_user, :descripcion, :pendiente, :fecha)";
+                //$sql="INSERT INTO todo_tasks (usuarios_id_user, descripcion, pendiente, fecha) ";
+                //$sql.="VALUES (:usuarios_id_user, :descripcion, :pendiente, :fecha)";
+                $sql="INSERT INTO tareas (id_usuario, title, descripcion, estado, fecha_creado) ";
+                $sql.="VALUES (:id_usuario, :title, :descripcion, :estado, :fecha_creado)";
                 $stmt=$this->gbd->prepare($sql);
-                $stmt->bindValue(':id_usuario',$request->parameters['usuarios_id_user'],\PDO::PARAM_INT);
+                /*$stmt->bindValue(':id_usuario',$request->parameters['usuarios_id_user'],\PDO::PARAM_INT);
                 $stmt->bindValue(':descripcion',$request->parameters['descripcion'],\PDO::PARAM_STR);
                 $stmt->bindValue(':pendiente',$estado,\PDO::PARAM_INT);
-                $stmt->bindValue(':fecha',$datenow,\PDO::PARAM_STR);
+                $stmt->bindValue(':fecha',$datenow,\PDO::PARAM_STR);*/
+                $stmt->bindValue(':id_usuario',$request->parameters['id_usuario'],\PDO::PARAM_INT);
+                $stmt->bindValue(':title',$request->parameters['title'],\PDO::PARAM_STR);
+                $stmt->bindValue(':descripcion',$request->parameters['descripcion'],\PDO::PARAM_STR);
+                $stmt->bindValue(':estado',$estado,\PDO::PARAM_INT);
+                $stmt->bindValue(':fecha_creado',$fecha_actual,\PDO::PARAM_STR);
                 $result=$stmt->execute();
 
                 if($result){
@@ -95,9 +107,11 @@ class Task
             return ['msg'=>'Task not defined'];
         }else{
             $id=$request->parameters;
-            $sql="DELETE FROM todo_tasks WHERE id_task=:id_task";
+            //$sql="DELETE FROM todo_tasks WHERE id_task=:id_task";
+            $sql="DELETE FROM tareas WHERE id=:id";
             $stmt=$this->gbd->prepare($sql);
-            $stmt->bindValue(':id_task',$id,\PDO::PARAM_INT);
+            //$stmt->bindValue(':id_task',$id,\PDO::PARAM_INT);
+            $stmt->bindValue(':id',$id,\PDO::PARAM_INT);
             if($stmt->execute()){
                 if($stmt->rowCount()!=0){
                     return ['msg'=>'Tarea eliminada correctamente'];
@@ -127,11 +141,14 @@ class Task
                 // a través de la siguiente variable,compruebo los campos que habrá que actualizar
                 $camposaactualizar=false;
                 foreach ($request->parameters as $field=>$value){
-                    if($field!="id_task"){
+                    //if($field!="id_task"){
+                    if($field!="id"){
                         $camposaactualizar=true;
-                        $sql="UPDATE todo_tasks SET $field=:$field,fecha=:fecha WHERE id_task=:id_task";
+                        //$sql="UPDATE todo_tasks SET $field=:$field,fecha=:fecha WHERE id_task=:id_task";
+                        $sql="UPDATE tareas SET $field=:$field,fecha_act=:fecha_act WHERE id=:id";
                         $stmt=$this->gbd->prepare($sql);
-                        $stmt->bindValue(':id_task',$id,\PDO::PARAM_INT);
+                        //$stmt->bindValue(':id_task',$id,\PDO::PARAM_INT);
+                        $stmt->bindValue(':id',$id,\PDO::PARAM_INT);
                         $parameter=":".$field;
                         if($field=="pendiente"){
                             if ($value=="Pendiente"){
@@ -145,7 +162,8 @@ class Task
                         }else{
                             $stmt->bindValue($parameter,$value,\PDO::PARAM_STR);
                         }
-                        $stmt->bindValue(':fecha',$datenow,\PDO::PARAM_STR);
+                        //$stmt->bindValue(':fecha',$datenow,\PDO::PARAM_STR);
+                        $stmt->bindValue(':fecha_act',$datenow,\PDO::PARAM_STR);
                         $result=$stmt->execute();
                         if(!$result) {
                             return ['msg'=>'No se pudo actualizar la tarea'];

@@ -43,10 +43,12 @@ class User
                 $stmt->execute();
                 $rows=$stmt->fetchAll(\PDO::FETCH_ASSOC);
             }else{
-                $sql="SELECT * from usuarios WHERE id_user=:id_user";
+                //$sql="SELECT * from usuarios WHERE id_user=:id_user";
+                $sql="SELECT * FROM usuarios WHERE id=:id";
                 $id=$request->parameters;
                 $stmt=$this->gdb->prepare($sql);
-                $stmt->bindValue(':id_user',$id,\PDO::PARAM_INT);
+                //$stmt->bindValue(':id_user',$id,\PDO::PARAM_INT);
+                $stmt->bindValue(':id',$id,\PDO::PARAM_INT);
                 $stmt->execute();
                 $rows=$stmt->fetchAll(\PDO::FETCH_ASSOC);
             }
@@ -68,21 +70,21 @@ class User
             die;*/
             if(!empty($request->parameters['nombre'])&&
                 !empty($request->parameters['apellidos'])&&
-                !empty($request->parameters['login'])&&
-                !empty($request->parameters['edad'])&&
-                !empty($request->parameters['passwd'])) {
+                !empty($request->parameters['email'])&&
+                !empty($request->parameters['password'])) {
 
                 //var_dump($request->parameters['nombre']);
 
-                $pass_enc=password_hash($_POST['passwd'],PASSWORD_BCRYPT,['cost'=>4]);
-                $sql="INSERT INTO usuarios(nombre, apellidos, login, passwd, edad) VALUES (:nombre, :apellidos, :login, :passwd, :edad)";
+                $pass_enc=password_hash($_POST['password'],PASSWORD_BCRYPT,['cost'=>4]);
+                $datenow=date('Y-m-d H:i:s');
+                $sql="INSERT INTO usuarios(email, password, nombre, apellidos, fecha_creado) VALUES (:email, :password, :nombre, :apellidos, :fecha_creado)";
                 //return $this->gdb->oper($sql,$request,['login,nombre,apellidos,edad,passwd'],"User created");
                 $stmt=$this->gdb->prepare($sql);
-                $stmt->bindValue(':nombre',$request->parameters['nombre']);
-                $stmt->bindValue(':apellidos',$request->parameters['apellidos']);
-                $stmt->bindValue(':login',$request->parameters['login']);
-                $stmt->bindValue(':edad',$request->parameters['edad']);
-                $stmt->bindValue(':passwd',$pass_enc);
+                $stmt->bindValue(':email',$request->parameters['email'],\PDO::PARAM_STR);
+                $stmt->bindValue(':password',$pass_enc,\PDO::PARAM_STR);
+                $stmt->bindValue(':nombre',$request->parameters['nombre'],\PDO::PARAM_STR);
+                $stmt->bindValue(':apellidos',$request->parameters['apellidos'],\PDO::PARAM_STR);
+                $stmt->bindValue(':fecha_creado',$datenow,\PDO::PARAM_STR);
                 $stmt->execute();
                 //$rows=$stmt->fetchAll(\PDO::FETCH_ASSOC);
                 if($stmt->execute()){
@@ -108,23 +110,33 @@ class User
         }else{
             //$data=[$name,$login,$pass];
             //$id=$request->getId_user();
-            $id=$request->parameter['id_user'];
-            if(!empty($request->parameter['passwd'])){
-                $pass_enc=password_hash($_POST['passwd'],PASSWORD_BCRYPT,['cost'=>4]);
+
+            //$id=$request->parameter['id_user'];
+            $id=$request->parameters['id'];
+            //if(!empty($request->parameter['passwd'])){
+            if(!empty($request->parameters['password'])){
+                $pass_enc=password_hash($_POST['password'],PASSWORD_BCRYPT,['cost'=>4]);
 
             }
+            $datenow=date('Y-m-d H:i:s');
+            $camposaactualizar=false;
             foreach ($request->parameter as $field=>$value){
                 /*$name=$request->parameter['name'];
                 $surname=$request->parameter['apellidos'];
                 $login=$request->parameter['login'];
                 $pass=$request->parameter['passwd'];*/
-                $sql="UPDATE usuarios SET $field=:$field WHERE id=:$id";
+
+                //$sql="UPDATE usuarios SET $field=:$field WHERE id=:$id";
+                $sql="UPDATE usuarios SET $field=:$field,fecha_act=:fecha_act WHERE id=:id";
+
                 //$output= $this->gdb->oper($sql,$request,$request->parameters,"User updated");
                 $stmt=$this->gdb->prepare($sql);
-                $stmt->bindValue(":id_user",$id);
+                //$stmt->bindValue(":id_user",$id);
+                $stmt->bindValue(':id',$id,\PDO::PARAM_INT);
                 $parameter=":".$field;
                 $stmt->bindValue($parameter,$value,\PDO::PARAM_STR);
                // $stmt->bindValue(":value",$request->parameter[$field]);
+                $stmt->bindValue(':fecha_act',$datenow,\PDO::PARAM_STR);
                 $stmt->execute();
                 if($stmt->execute()){
                     return ['msg'=>'Usuario actualizado'];
@@ -152,9 +164,11 @@ class User
             return ['msg'=>'Usuario no definido'];
         }else{
             $id=$request->parameters['id_user'];
-            $sql="DELETE FROM usuarios WHERE id_user=:id_user";
+            //$sql="DELETE FROM usuarios WHERE id_user=:id_user";
+            $sql="DELETE FROM usuarios WHERE id=:id";
             $stmt=$this->gdb->prepare($sql);
-            $stmt->bindValue(':id_user',$id);
+            //$stmt->bindValue(':id_user',$id);
+            $stmt->bindValue(':id',$id,\PDO::PARAM_INT);
             $stmt->execute();
             if($stmt->execute()){
                 return ['msg'=>'Usuario eliminado correctament'];

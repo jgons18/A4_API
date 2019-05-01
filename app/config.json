@@ -4,9 +4,9 @@
     "version":"1.0"
   },
   "dbconf":{
-    "driver":"mysql",
+    "driver": "mysql",
     "dbhost": "172.17.0.2",
-    "dbname": "A3",
-    "dbuser": "root",
+    "dbname": "jgonzalez_todo",
+    "dbuser": "jgonzalez_todo",
     "dbpass": "linuxlinux"
   }
