@@ -3,10 +3,21 @@
     "tittle":"Framework",
     "version":"1.0"
   },
-  "dbconf":{
-    "driver": "mysql",
-    "dbhost": "172.17.0.2",
-    "dbname": "jgonzalez_todo",
-    "dbuser": "jgonzalez_todo",
-    "dbpass": "linuxlinux"
+  "dbconf_pro":{
+    "driver":"mysql",
+    "dbhost":"localhost",
+    "dbuser":"jgonzalez_todo",
+    "dbpass":"linuxlinux",
+    "dbname":"jgonzalez_todo"
+  },
+  "dbconf_dev":{
+    "driver":"mysql",
+    "dbhost":"172.17.0.2",
+    "dbuser":"root",
+    "dbpass":"linuxlinux",
+    "dbname":"jgonzalez_todo"
   }
+  
+}
+  
+  

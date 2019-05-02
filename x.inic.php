@@ -28,7 +28,8 @@ function root(){
     }
 }
 function env(){
-    if ($_SERVER['SERVER_ADDR']=='127.0.0.1'){
+    //if ($_SERVER['SERVER_ADDR']=='127.0.0.1'){
+    if ($_SERVER['SERVER_NAME']=='jgonzalez.cesnuria.com'){
         return 'dev';
     }else{
         return 'pro';
